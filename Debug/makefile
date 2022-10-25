@@ -51,34 +51,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := CSP-756
+BUILD_ARTIFACT_NAME := FreeRTOS-CSP-Nucleo-7x6
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-CSP-756.elf \
+FreeRTOS-CSP-Nucleo-7x6.elf \
 
 MAP_FILES += \
-CSP-756.map \
+FreeRTOS-CSP-Nucleo-7x6.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-CSP-756.list \
+FreeRTOS-CSP-Nucleo-7x6.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: CSP-756.elf secondary-outputs
+main-build: FreeRTOS-CSP-Nucleo-7x6.elf secondary-outputs
 
 # Tool invocations
-CSP-756.elf CSP-756.map: $(OBJS) $(USER_OBJS) C:\Users\Guillaume\ Vincent\STM32CubeIDE\workspace_1.7.0\CSP-756\STM32F756ZGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "CSP-756.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\Guillaume Vincent\STM32CubeIDE\workspace_1.7.0\CSP-756\STM32F756ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CSP-756.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+FreeRTOS-CSP-Nucleo-7x6.elf FreeRTOS-CSP-Nucleo-7x6.map: $(OBJS) $(USER_OBJS) C:\Users\Guillaume\ Vincent\STM32CubeIDE\workspace_1.7.0\FreeRTOS-CSP-Nucleo-7x6\STM32F756ZGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "FreeRTOS-CSP-Nucleo-7x6.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\Guillaume Vincent\STM32CubeIDE\workspace_1.7.0\FreeRTOS-CSP-Nucleo-7x6\STM32F756ZGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FreeRTOS-CSP-Nucleo-7x6.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -87,14 +87,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-CSP-756.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "CSP-756.list"
+FreeRTOS-CSP-Nucleo-7x6.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "FreeRTOS-CSP-Nucleo-7x6.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) CSP-756.elf CSP-756.list CSP-756.map default.size.stdout
+	-$(RM) FreeRTOS-CSP-Nucleo-7x6.elf FreeRTOS-CSP-Nucleo-7x6.list FreeRTOS-CSP-Nucleo-7x6.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
