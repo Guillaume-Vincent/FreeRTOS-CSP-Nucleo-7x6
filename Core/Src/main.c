@@ -30,7 +30,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -87,6 +86,11 @@ int USB_OutBufLen;
 
 static uint8_t server_port = 10;
 static uint8_t server_address = 27;
+
+CAN_RxHeaderTypeDef rxHeader;
+uint8_t canRX[8] = {0,0,0,0,0,0,0,0};
+CAN_FilterTypeDef canfil;
+uint8_t canSend = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,7 +144,6 @@ int main(void)
 	MX_CAN1_Init();
 	/* USER CODE BEGIN 2 */
 	MX_USB_DEVICE_Init();
-	HAL_CAN_Start(&hcan1);
 
 	uint8_t address = 1;
 	csp_debug_level_t debug_level = CSP_INFO;
@@ -160,11 +163,19 @@ int main(void)
 	csp_route_start_task(1000, 0);
 
 	/* Add interface(s) */
-	csp_iface_t *default_iface = NULL;
-	error = csp_can_stm32_open_and_add_interface(CSP_IF_CAN_DEFAULT_NAME, &default_iface);
+	csp_iface_t CSP_IF_CAN = {
+	    .name = "CSP IF CAN",
+			.driver_data = &hcan1,
+	    .nexthop = csp_can_tx,
+	    .mtu = 64,
+	};
 
-	if (default_iface) {
-		csp_rtable_set(CSP_DEFAULT_ROUTE, 0, default_iface, CSP_NO_VIA_ADDRESS);
+	csp_iface_t *can_iface = &CSP_IF_CAN;
+
+	error = csp_can_stm32_open_and_add_interface(CSP_IF_CAN.name, &can_iface);
+
+	if (can_iface) {
+		csp_rtable_set(CSP_DEFAULT_ROUTE, 0, can_iface, CSP_NO_VIA_ADDRESS);
 	} else {
 		server_address = address;
 	}
@@ -217,7 +228,6 @@ int main(void)
 
 	/* Start scheduler */
 	osKernelStart();
-
 	/* We should never get here as control is now taken by the scheduler */
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
@@ -311,6 +321,20 @@ static void MX_CAN1_Init(void)
 	}
 	/* USER CODE BEGIN CAN1_Init 2 */
 
+	canfil.FilterBank = 0;
+	canfil.FilterMode = CAN_FILTERMODE_IDMASK;
+	canfil.FilterFIFOAssignment = CAN_RX_FIFO0;
+	canfil.FilterIdHigh = 0;
+	canfil.FilterIdLow = 0;
+	canfil.FilterMaskIdHigh = 0;
+	canfil.FilterMaskIdLow = 0;
+	canfil.FilterScale = CAN_FILTERSCALE_32BIT;
+	canfil.FilterActivation = ENABLE;
+	canfil.SlaveStartFilterBank = 14;
+
+	if (HAL_CAN_ConfigFilter(&hcan1,&canfil) != HAL_OK) //Initialize CAN Filter
+		Error_Handler();
+
 	/* USER CODE END CAN1_Init 2 */
 
 }
@@ -358,6 +382,8 @@ static void MX_USART3_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	/* USER CODE BEGIN MX_GPIO_Init_1 */
+	/* USER CODE END MX_GPIO_Init_1 */
 
 	/* GPIO Ports Clock Enable */
 	__HAL_RCC_GPIOC_CLK_ENABLE();
@@ -431,6 +457,8 @@ static void MX_GPIO_Init(void)
 	GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
 	HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
+	/* USER CODE BEGIN MX_GPIO_Init_2 */
+	/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -446,8 +474,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_Start_USB_Send */
 void Start_USB_Send(void *argument)
 {
-	// IMPORTANT: Make sure that the usb_cdc_if.c includes the CDC_SET_LINE_CODING/CDC_GET_LINE_CODING
-	// 						else COM port communication won't work
 	/* init code for USB_DEVICE */
 	MX_USB_DEVICE_Init();
 	/* USER CODE BEGIN 5 */
@@ -476,8 +502,15 @@ void Start_USB_Send(void *argument)
 void Start_CAN_Send_Ping(void *argument)
 {
 	/* USER CODE BEGIN Start_CAN_Send_Ping */
+	if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+		Error_Handler();
+	}
 	/* Infinite loop */
 	while (1) {
+
+		uint8_t csend[] = {0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08};
+		//HAL_CAN_AddTxMessage(&hcan1,&txHeader,csend,&canMailbox);
+
 		if (csp_ping(server_address, 1000, 50, CSP_SO_NONE) == -1) {
 			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 		} else {

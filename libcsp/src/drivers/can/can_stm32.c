@@ -23,6 +23,17 @@ static int csp_can_tx_frame(void *driver_data, uint32_t id, const uint8_t *data,
 		return CSP_ERR_INVAL;
 	}
 
+	CAN_TxHeaderTypeDef txHeader;
+	txHeader.DLC = dlc;
+	txHeader.IDE = CAN_ID_EXT;
+	txHeader.RTR = CAN_RTR_DATA;
+	txHeader.ExtId = id;
+	txHeader.TransmitGlobalTime = DISABLE;
+
+
+	uint32_t canMailBox;
+	HAL_CAN_AddTxMessage((CAN_HandleTypeDef *)driver_data, &txHeader, data, &canMailBox);
+
 	return CSP_ERR_NONE;
 }
 
@@ -39,7 +50,7 @@ int csp_can_stm32_open_and_add_interface(const char *ifname, csp_iface_t **retur
 	strncpy(ctx->name, ifname, sizeof(ctx->name) - 1);
 	ctx->iface.name = ctx->name;
 	ctx->iface.interface_data = &ctx->ifdata;
-	ctx->iface.driver_data = ctx;
+	ctx->iface.driver_data = (*return_iface)->driver_data;
 	ctx->ifdata.tx_func = csp_can_tx_frame;
 
 	int res = csp_can_add_interface(&ctx->iface);

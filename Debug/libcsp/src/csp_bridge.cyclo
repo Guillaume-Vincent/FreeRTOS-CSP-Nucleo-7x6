@@ -1,0 +1,4 @@
+csp_bridge.c:39:16:get_via	2
+csp_bridge.c:47:8:csp_bridge	6
+csp_bridge.c:91:13:is_zmq_interface	4
+csp_bridge.c:104:5:csp_bridge_start	3

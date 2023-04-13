@@ -9,7 +9,7 @@
 #define INCLUDE_CSP_DRIVERS_CAN_STM32_H_
 
 #include <csp/interfaces/csp_if_can.h>
-
+#include "main.h"
 
 /**
    Open stm32 CAN and add CSP interface.

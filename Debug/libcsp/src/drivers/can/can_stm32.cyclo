@@ -1,0 +1,2 @@
+can_stm32.c:21:12:csp_can_tx_frame	2
+can_stm32.c:40:5:csp_can_stm32_open_and_add_interface	5
