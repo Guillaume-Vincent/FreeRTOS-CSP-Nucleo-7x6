@@ -225,6 +225,13 @@ int csp_can_tx(const csp_route_t * ifroute, csp_packet_t *packet) {
 
 	/* Send next frames if not complete */
 	while (tx_count < packet->length) {
+		while ( ((((CAN_HandleTypeDef *)(iface->driver_data))->Instance->TSR & CAN_TSR_TME0) != CAN_TSR_TME0) &&
+				    ((((CAN_HandleTypeDef *)(iface->driver_data))->Instance->TSR & CAN_TSR_TME1) != CAN_TSR_TME1) &&
+				    ((((CAN_HandleTypeDef *)(iface->driver_data))->Instance->TSR & CAN_TSR_TME2) != CAN_TSR_TME2) ) {
+			;
+		}
+
+
 		/* Calculate frame data bytes */
 		bytes = (packet->length - tx_count >= MAX_BYTES_IN_CAN_FRAME) ? MAX_BYTES_IN_CAN_FRAME : packet->length - tx_count;
 
